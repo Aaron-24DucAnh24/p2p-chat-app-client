@@ -61,20 +61,14 @@ function createChatWindow() {
         },
     })
     chatWindow.loadFile(path.join(__dirname, '/view/app.html'))
+    chatWindow.webContents.openDevTools()
     chatWindow.show()
     clearOtherWindows()
 
     listener.on('connection', (socket) => {
         socket.on('textTrunk', (textTrunk) => {
             chatWindow.webContents.send('displayTextMessage', textTrunk)
-            console.log(textTrunk)
-            socket.emit('event', textTrunk)
         })
-
-        // console.log(socket)
-        // socket.on('msg', (a) => {
-        //     console.log(a)
-        // })
     })
 }
 
