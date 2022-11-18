@@ -13,9 +13,8 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 /// for chat function ///
 const {Server}  = require('socket.io')
 const listener  = new Server(10000, "10.128.151.4")
-
 const {io}      = require('socket.io-client')
-var peerAddress = 'ws://localhost:10001'
+var peerAddress = 'ws://localhost:10000'
 
 //////////////////
 ///main process///
@@ -61,12 +60,26 @@ function createChatWindow() {
         },
     })
     chatWindow.loadFile(path.join(__dirname, '/view/app.html'))
+    chatWindow.webContents.openDevTools()
     chatWindow.show()
     clearOtherWindows()
 
+    /// Listen to other peers ///
     listener.on('connection', (socket) => {
+
+        /// Get text trunk
         socket.on('textTrunk', (textTrunk) => {
             chatWindow.webContents.send('displayTextMessage', textTrunk)
+        })
+
+        /// Get img trunk
+        socket.on('imgTrunk', (imgTrunk) => {
+            chatWindow.webContents.send('displayImgMessage', imgTrunk)
+        })
+
+        /// Get zip trunk
+        socket.on('zipTrunk', (zipTrunk) => {
+            chatWindow.webContents.send('displayZipTrunk', zipTrunk.zip)
         })
     })
 }
@@ -129,4 +142,16 @@ ipcMain.on('register', async (e, reqInfo) => {
 ipcMain.on('sendTextTrunk', (e, textTrunk) => {
     var socket = io(peerAddress)
     socket.emit('textTrunk', textTrunk)
+})
+
+/// Send img trunk to other peers ///
+ipcMain.on('sendImgTrunk', (e, imgTrunk) => {
+    var socket = io(peerAddress)
+    socket.emit('imgTrunk', imgTrunk)
+})
+
+/// Send zip trunk to other peers ///
+ipcMain.on('sendZipTrunk', (e, zipTrunk) => {
+    var socket = io(peerAddress)
+    socket.emit('zipTrunk', zipTrunk)
 })
