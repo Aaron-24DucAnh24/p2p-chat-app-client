@@ -40,7 +40,7 @@ sendBtn.addEventListener('click', (event) => {
                 ${msgValue}
             </p>
         </div>` ;
-        window.appAPI.sendTextTrunk({name: 'test', text: msgValue})
+        // window.appAPI.sendTextTrunk({name: 'test', text: msgValue})
         msg.value = ''
         msgValue  = ''
     }

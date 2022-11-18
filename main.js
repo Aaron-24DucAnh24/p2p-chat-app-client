@@ -61,7 +61,6 @@ function createChatWindow() {
         },
     })
     chatWindow.loadFile(path.join(__dirname, '/view/app.html'))
-    chatWindow.webContents.openDevTools()
     chatWindow.show()
     clearOtherWindows()
 
