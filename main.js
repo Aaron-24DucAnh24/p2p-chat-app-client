@@ -79,7 +79,7 @@ function createChatWindow() {
 
         /// Get zip trunk
         socket.on('zipTrunk', (zipTrunk) => {
-            chatWindow.webContents.send('displayZipTrunk', zipTrunk.zip)
+            ////
         })
     })
 }

@@ -55,7 +55,6 @@ sendBtn.addEventListener('click', (event) => {
         if(fileValue[0].type == 'application/zip') {
             chatBox.innerHTML = chatBox.innerHTML +
             `<div class="zip-message me">${fileValue[0].name}</div>`;
-            var reader = new FileReader()
             reader.readAsDataURL(fileValue[0])
             reader.onload = function (e) {
                 window.appAPI.sendZipTrunk({name: 'Test', zip: e.target.result})
@@ -70,6 +69,7 @@ sendBtn.addEventListener('click', (event) => {
                 chatBox.innerHTML = chatBox.innerHTML +
                 `<img src="${e.target.result}" class="img-message me"></img>`;
                 window.appAPI.sendImgTrunk({name: 'Test', img: e.target.result})
+                console.log(e.target.result)
             }
         }
         fileValue = []
@@ -95,9 +95,10 @@ window.appAPI.getTextTrunk((event, textTrunk) => {
 window.appAPI.getImgTrunk((event, imgTrunk) => {
     chatBox.innerHTML = chatBox.innerHTML +
     `<img src="${imgTrunk.img}" class="img-message"></img>`;
+    console.log(123)
 })
 
 /// get zip message handler /// 
 window.appAPI.getZipTrunk((event, zipFile) => {
-    console.log(zipFile)
+    ///
 })
