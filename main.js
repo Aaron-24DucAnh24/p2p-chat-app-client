@@ -12,9 +12,10 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 
 /// for chat function ///
 const {Server}  = require('socket.io')
-const listener  = new Server(10000, "10.128.151.4")
+const listener  = new Server(10000)
+
 const {io}      = require('socket.io-client')
-var peerAddress = 'ws://localhost:10000'
+var peerAddress = 'http://localhost:10001'
 
 //////////////////
 ///main process///
