@@ -2,8 +2,9 @@
 /// for app creation ///
 const electron = require('electron')
 const {app, BrowserWindow, ipcMain} = electron
-const server   = 'https://9818-14-169-207-49.ap.ngrok.io'
+const server = 'https://f00e-14-169-207-49.ap.ngrok.io'
 var userName = ''
+var IPs
 
 /// for path controller ///
 const path = require('path')
@@ -14,9 +15,8 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 /// for chat function ///
 const {Server}  = require('socket.io')
 const listener  = new Server(10000)
-
 const {io}      = require('socket.io-client')
-var peerAddress = 'http://localhost:10001'
+var peerAddress = ''
 
 //////////////////
 ///main process///
@@ -30,8 +30,13 @@ app.whenReady().then(() => {
     })
 })
 
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit()
+app.on('window-all-closed', async () => {
+    app.quit()
+    const response = await fetch(server + '/logout', {
+        method: 'post',
+        body: JSON.stringify({name: userName}),
+        headers: {'Content-Type': 'application/json'}
+    })
 })
 
 //////////////////
@@ -84,6 +89,18 @@ function createChatWindow() {
             ////
         })
     })
+
+    /// Request IP from the server ///
+    setTimeout(async () => {
+        var response = await fetch(server + '/' + userName);
+        IPs      = await response.text()
+        if(IPs) chatWindow.webContents.send('getIP', JSON.parse(IPs))
+    }, 50)
+    setInterval(async () => {
+        var response = await fetch(server + '/' + userName);
+        IPs      = await response.text()
+        if(IPs) chatWindow.webContents.send('getIP', JSON.parse(IPs))
+    }, 10000)
 }
 
 function createRegisterWindow() {
@@ -98,7 +115,6 @@ function createRegisterWindow() {
     registerWindow.loadFile(path.join(__dirname, '/view/register.html'))
     registerWindow.show()
     clearOtherWindows()
-    winNo = 2
 }
 
 function clearOtherWindows() {
@@ -120,11 +136,10 @@ ipcMain.on('getLoginInfo', async (e, loginInfo) => {
         body: JSON.stringify(loginInfo),
         headers: {'Content-Type': 'application/json'}
     });
-    const data = await response.json();
+    const data = await response.json()
     if(data){
         createChatWindow()
         userName = data
-        console.log(userName)
     } 
     else BrowserWindow.getFocusedWindow().reload()
 })
@@ -135,7 +150,7 @@ ipcMain.on('register', async (e, reqInfo) => {
         body: JSON.stringify(reqInfo),
         headers: {'Content-Type': 'application/json'}
     });
-    const data = await response.json();
+    const data = await response.json()
     if(data){
         createChatWindow()
         userName = data
@@ -149,12 +164,11 @@ ipcMain.on('logout', async (e) => {
         method: 'post',
         body: JSON.stringify({name: userName}),
         headers: {'Content-Type': 'application/json'}
-    });
-    const data = await response.json();
+    })
+    const data = await response.json()
     if(data){
         createLoginWindow()
         userName = ''
-        console.log(userName)
     } 
     else BrowserWindow.getFocusedWindow().reload()
 })
@@ -177,9 +191,7 @@ ipcMain.on('sendZipTrunk', (e, zipTrunk) => {
     socket.emit('zipTrunk', zipTrunk)
 })
 
-/// Request IP from the server ///
-ipcMain.on('requestIP', async (e) => {
-    var response = await fetch(server + '/' + userName);
-    var IPs      = await response.text()
-    if(IPs) e.sender.send('getIP', JSON.parse(IPs))
+/// Switch peer ///
+ipcMain.on('switchPeer', (e, IP) => {
+    peerAddress = 'http://' + IP + '/10000'
 })

@@ -96,6 +96,11 @@ a {
 	cursor: pointer;
 }
 
+.focused {
+	background-color: white;
+	color: var(--light-color);
+}
+
 .friend:hover {
 	color: var(--light-color);
 }

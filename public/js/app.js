@@ -103,20 +103,49 @@ window.appAPI.getZipTrunk((event, zipFile) => {
     ///
 })
 
-/// Handle getting IP address
+/// Handle getting IP address ///
 /// and redirecting peers ///
 
+var curPeerName = ''
 var friendList = document.querySelector('.friend-list')
-
-setInterval(() => {
-    window.appAPI.requestIP()
-}, 1000);
+var rendererIPs
 
 window.appAPI.getIP((event, IPs) => {
     var html = ''
+    rendererIPs = IPs
     for(var IP of IPs) {
-        html += 
-        `<li><a class="friend" id='${IP.ip}'>${IP.name}</a></li>`
+        if(IP.name != curPeerName)
+            html += 
+            `<li>
+                <a class="friend" id="${IP.name}" onclick="switchPeer(this.id)">
+                    ${IP.name}
+                </a>
+            </li>`
+        else 
+            html += 
+            `<li>
+                <a class="friend focused" id="${IP.name}" onclick="switchPeer(this.id)">
+                    ${IP.name}
+                </a>
+            </li>`
     }
-    friendList.innerHTML = html
+    if(html != friendList.innerHTML)
+        friendList.innerHTML = html
 })
+
+function switchPeer(Name) {
+    if(curPeerName !== Name) {
+        if(curPeerName)
+            document.querySelector('#' + curPeerName).classList.remove('focused')
+        curPeerName = Name
+        for(var rendererIP of rendererIPs) {
+            if(rendererIP.name === Name) {
+                window.appAPI.switchPeer(rendererIP.ip)
+                break 
+            }
+        }
+        chatBox.innerHTML = ''
+        var peer = document.querySelector('#' + Name)
+        peer.classList.add('focused')
+    }
+}
