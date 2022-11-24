@@ -2,7 +2,8 @@
 /// for app creation ///
 const electron = require('electron')
 const {app, BrowserWindow, ipcMain} = electron
-const window   = require('electron').BrowserWindow
+const server   = 'http://127.0.0.1:3000'
+var userName = ''
 
 /// for path controller ///
 const path = require('path')
@@ -101,8 +102,8 @@ function createRegisterWindow() {
 }
 
 function clearOtherWindows() {
-    var length = window.getAllWindows().length
-    if(length > 1) window.getAllWindows()[1].destroy()
+    var length = BrowserWindow.getAllWindows().length
+    if(length > 1) BrowserWindow.getAllWindows()[1].destroy()
 }
 
 ///////////////////////////
@@ -113,30 +114,49 @@ ipcMain.on('openRegister', (e) => {
     createRegisterWindow()
 })
 
-ipcMain.on('logout', (e) => {
-    createLoginWindow()
-})
-
 ipcMain.on('getLoginInfo', async (e, loginInfo) => {
-    const response = await fetch('http://localhost:3000/login', {
+    const response = await fetch(server + '/login', {
         method: 'post',
         body: JSON.stringify(loginInfo),
         headers: {'Content-Type': 'application/json'}
     });
     const data = await response.json();
-    if(data) createChatWindow()
-    else window.getFocusedWindow().reload()
+    if(data){
+        createChatWindow()
+        userName = data
+        console.log(userName)
+    } 
+    else BrowserWindow.getFocusedWindow().reload()
 })
 
 ipcMain.on('register', async (e, reqInfo) => {
-    const response = await fetch('http://localhost:3000/register', {
+    const response = await fetch(server + '/register', {
         method: 'post',
         body: JSON.stringify(reqInfo),
         headers: {'Content-Type': 'application/json'}
     });
     const data = await response.json();
-    if(data) createChatWindow()
-    else window.getFocusedWindow().reload()
+    if(data){
+        createChatWindow()
+        userName = data
+        console.log(userName)
+    } 
+    else BrowserWindow.getFocusedWindow().reload()
+})
+
+ipcMain.on('logout', async (e) => {
+    const response = await fetch(server + '/logout', {
+        method: 'post',
+        body: JSON.stringify({name: userName}),
+        headers: {'Content-Type': 'application/json'}
+    });
+    const data = await response.json();
+    if(data){
+        createLoginWindow()
+        userName = ''
+        console.log(userName)
+    } 
+    else BrowserWindow.getFocusedWindow().reload()
 })
 
 /// Send text trunk to other peers ///
