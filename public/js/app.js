@@ -102,3 +102,21 @@ window.appAPI.getImgTrunk((event, imgTrunk) => {
 window.appAPI.getZipTrunk((event, zipFile) => {
     ///
 })
+
+/// Handle getting IP address
+/// and redirecting peers ///
+
+var friendList = document.querySelector('.friend-list')
+
+setInterval(() => {
+    window.appAPI.requestIP()
+}, 1000);
+
+window.appAPI.getIP((event, IPs) => {
+    var html = ''
+    for(var IP of IPs) {
+        html += 
+        `<li><a class="friend" id='${IP.ip}'>${IP.name}</a></li>`
+    }
+    friendList.innerHTML = html
+})

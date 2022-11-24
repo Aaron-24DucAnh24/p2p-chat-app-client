@@ -2,7 +2,7 @@
 /// for app creation ///
 const electron = require('electron')
 const {app, BrowserWindow, ipcMain} = electron
-const server   = 'http://127.0.0.1:3000'
+const server   = 'https://9818-14-169-207-49.ap.ngrok.io'
 var userName = ''
 
 /// for path controller ///
@@ -110,7 +110,7 @@ function clearOtherWindows() {
 /// listen from renderer //
 ///////////////////////////
 
-ipcMain.on('openRegister', (e) => {
+ipcMain.on('openRegister', () => {
     createRegisterWindow()
 })
 
@@ -175,4 +175,11 @@ ipcMain.on('sendImgTrunk', (e, imgTrunk) => {
 ipcMain.on('sendZipTrunk', (e, zipTrunk) => {
     var socket = io(peerAddress)
     socket.emit('zipTrunk', zipTrunk)
+})
+
+/// Request IP from the server ///
+ipcMain.on('requestIP', async (e) => {
+    var response = await fetch(server + '/' + userName);
+    var IPs      = await response.text()
+    if(IPs) e.sender.send('getIP', JSON.parse(IPs))
 })

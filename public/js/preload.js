@@ -16,4 +16,7 @@ contextBridge.exposeInMainWorld('appAPI',
 
     sendZipTrunk : (zipTrunk)  => ipcRenderer.send('sendZipTrunk', zipTrunk),
     getZipTrunk  : (callback)  => ipcRenderer.on('displayZipTrunk', callback),
-})
+
+    requestIP    : ()          => ipcRenderer.send('requestIP'),
+    getIP        : (callback)  => ipcRenderer.on('getIP', callback),
+ })

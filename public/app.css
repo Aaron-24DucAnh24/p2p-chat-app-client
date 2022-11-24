@@ -93,10 +93,11 @@ a {
 
 .friend {
     color: #fff;
+	cursor: pointer;
 }
 
 .friend:hover {
-    color: var(--light-color);
+	color: var(--light-color);
 }
 
 .abc {
