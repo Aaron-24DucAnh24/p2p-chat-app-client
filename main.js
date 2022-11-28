@@ -1,20 +1,20 @@
 
-/// for app creation ///
-const electron = require('electron')
-const {app, BrowserWindow, ipcMain} = electron
-const server = 'http://127.0.0.1:3000'
-var userName = ''
-var IPs
-
-/// for path controller ///
+// Necessary library
 const path = require('path')
-
-/// for calling API from server ///
+const {app, BrowserWindow, ipcMain} = require('electron')
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args))
+const interfaces = require('os').networkInterfaces();
 
-/// for chat function ///
+
+const server = 'http://127.0.0.1:3000' // Main server address
+var userName = ''                      // Current user name
+var IPs                                // List of ip address from server
+
+// Chat: listen chanel
 const {Server}  = require('socket.io')
 const listener  = new Server(10000)
+
+// Chat: send chanel
 const {io}      = require('socket.io-client')
 var peerAddress = ''
 
@@ -31,6 +31,7 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', async () => {
+    // logout before closing app
     if(userName) {
         await fetch(server + '/logout', {
             method: 'post',
@@ -73,36 +74,34 @@ function createChatWindow() {
     chatWindow.show()
     clearOtherWindows()
 
-    /// Listen to other peers ///
+    // Listen to other peers
     listener.on('connection', (socket) => {
 
-        /// Get text trunk
+        // Get text trunk
         socket.on('textTrunk', (textTrunk) => {
             chatWindow.webContents.send('displayTextMessage', textTrunk)
         })
 
-        /// Get img trunk
+        // Get img trunk
         socket.on('imgTrunk', (imgTrunk) => {
             chatWindow.webContents.send('displayImgMessage', imgTrunk)
         })
 
-        /// Get zip trunk
+        // Get zip trunk
         socket.on('zipTrunk', (zipTrunk) => {
-            ////
+
         })
     })
 
-    /// Request IP from the server ///
-    setTimeout(async () => {
+    
+    // request ip address from server
+    async function requestIp() {
         var response = await fetch(server + '/' + userName);
         IPs      = await response.text()
         if(IPs) chatWindow.webContents.send('getIP', JSON.parse(IPs))
-    }, 50)
-    setInterval(async () => {
-        var response = await fetch(server + '/' + userName);
-        IPs      = await response.text()
-        if(IPs) chatWindow.webContents.send('getIP', JSON.parse(IPs))
-    }, 5000)
+    }
+    requestIp()
+    setInterval(requestIp, 5000);
 }
 
 function createRegisterWindow() {
@@ -124,8 +123,21 @@ function clearOtherWindows() {
     if(length > 1) BrowserWindow.getAllWindows()[1].destroy()
 }
 
+function getLocalAddress() {
+    var addresses = [];
+    for (var k in interfaces) {
+        for (var k2 in interfaces[k]) {
+            var address = interfaces[k][k2];
+            if (address.family === 'IPv4' && !address.internal) {
+                addresses.push(address.address);
+            }
+        }
+    }
+    return addresses[0]
+}
+
 ///////////////////////////
-/// listen from renderer //
+/// listen to renderer   //
 ///////////////////////////
 
 ipcMain.on('openRegister', () => {
@@ -177,42 +189,23 @@ ipcMain.on('logout', async (e) => {
     else BrowserWindow.getFocusedWindow().reload()
 })
 
-/// Send text trunk to other peers ///
 ipcMain.on('sendTextTrunk', (e, textTrunk) => {
     textTrunk.name = userName
     var socket = io(peerAddress)
     socket.emit('textTrunk', textTrunk)
 })
 
-/// Send img trunk to other peers ///
 ipcMain.on('sendImgTrunk', (e, imgTrunk) => {
     imgTrunk.name = userName
     var socket = io(peerAddress)
     socket.emit('imgTrunk', imgTrunk)
 })
 
-/// Send zip trunk to other peers ///
 ipcMain.on('sendZipTrunk', (e, zipTrunk) => {
     zipTrunk.name = userName
     ///
 })
 
-/// Switch peer ///
 ipcMain.on('switchPeer', (e, IP) => {
     peerAddress = 'http://' + IP + ':10000'
 })
-
-var os = require('os')
-function getLocalAddress() {
-    var interfaces = os.networkInterfaces();
-    var addresses = [];
-    for (var k in interfaces) {
-        for (var k2 in interfaces[k]) {
-            var address = interfaces[k][k2];
-            if (address.family === 'IPv4' && !address.internal) {
-                addresses.push(address.address);
-            }
-        }
-    }
-    return addresses[0]
-}

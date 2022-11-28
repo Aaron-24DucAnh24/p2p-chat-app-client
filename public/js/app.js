@@ -1,28 +1,26 @@
 
 var logoutBtn = document.querySelector('.logout-btn')
 var sendBtn   = document.querySelector('.send-btn')
-
 var file      = document.querySelector('#file-input')
 var msg       = document.querySelector('.msg')
-
 var chatBox   = document.querySelector('.chat-messages')
 var msgBox    = document.querySelector('.msg-container')
 var fileBox   = document.querySelector('.file-note')
+var friendList = document.querySelector('.friend-list')
+var curPeerName = ''
 
-var curPeerName = 'Aaron'
-
-/// Logout ///
+// log out
 logoutBtn.addEventListener('click', (event) => {
     event.preventDefault()
     window.appAPI.logout()
 })
 
-/// Get text message value ///
-msg.oninput = () => {msgValue = msg.value}
+// get text message value
 var msgValue  = ''
+msg.oninput = () => {msgValue = msg.value}
 
 
-/// Handle file box
+// handle file box
 var fileValue = []
 file.onchange = () => {
     fileValue = file.files
@@ -33,11 +31,11 @@ file.onchange = () => {
     }
 }
 
-/// Send message handler ///
+// send message handler
 sendBtn.addEventListener('click', (event) => {
     event.preventDefault()
 
-    /// text message
+    // text message
     if(msgValue) {
         chatBox.innerHTML = chatBox.innerHTML + 
         `<div class="message message--me">
@@ -53,7 +51,7 @@ sendBtn.addEventListener('click', (event) => {
 
     if(fileValue.length != 0) {
 
-        /// zip message
+        // zip message
         if(fileValue[0].type == 'application/zip') {
             chatBox.innerHTML = chatBox.innerHTML +
             `<div class="zip-message me">${fileValue[0].name}</div>`;
@@ -77,7 +75,7 @@ sendBtn.addEventListener('click', (event) => {
     msgBox.scrollTop = msgBox.scrollHeight
 })
 
-/// get text message handler ///
+// get text message handler
 window.appAPI.getTextTrunk((event, textTrunk) => {
     if(textTrunk.name == curPeerName) {
         chatBox.innerHTML = chatBox.innerHTML + 
@@ -91,7 +89,7 @@ window.appAPI.getTextTrunk((event, textTrunk) => {
     }
 })
 
-/// get img message handler /// 
+// get img message handler
 window.appAPI.getImgTrunk((event, imgTrunk) => {
     if(imgTrunk.name == curPeerName){
         chatBox.innerHTML = chatBox.innerHTML +
@@ -99,20 +97,18 @@ window.appAPI.getImgTrunk((event, imgTrunk) => {
     }
 })
 
-/// get zip message handler /// 
+// get zip message handler
 window.appAPI.getZipTrunk((event, zipFile) => {
     ///
 })
 
-/// Handle getting IP address ///
-/// and redirecting peers ///
+// Handle getting IP address and switching peers
 
-var friendList = document.querySelector('.friend-list')
-var rendererIPs
+var peerIPs
 
 window.appAPI.getIP((event, IPs) => {
     var html = ''
-    rendererIPs = IPs
+    peerIPs = IPs
     for(var IP of IPs) {
         if(IP.name != curPeerName)
             html += 
@@ -138,14 +134,13 @@ function switchPeer(Name) {
         if(curPeerName)
             document.querySelector('#' + curPeerName).classList.remove('focused')
         curPeerName = Name
-        for(var rendererIP of rendererIPs) {
-            if(rendererIP.name === Name) {
-                window.appAPI.switchPeer(rendererIP.ip)
+        for(var peerIP of peerIPs) {
+            if(peerIP.name === Name) {
+                window.appAPI.switchPeer(peerIP.ip)
                 break 
             }
         }
         chatBox.innerHTML = ''
-        var peer = document.querySelector('#' + Name)
-        peer.classList.add('focused')
+        document.querySelector('#' + Name).classList.add('focused')
     }
 }
