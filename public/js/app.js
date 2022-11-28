@@ -9,6 +9,8 @@ var chatBox   = document.querySelector('.chat-messages')
 var msgBox    = document.querySelector('.msg-container')
 var fileBox   = document.querySelector('.file-note')
 
+var curPeerName = 'Aaron'
+
 /// Logout ///
 logoutBtn.addEventListener('click', (event) => {
     event.preventDefault()
@@ -44,7 +46,7 @@ sendBtn.addEventListener('click', (event) => {
                 ${msgValue}
             </p>
         </div>` ;
-        window.appAPI.sendTextTrunk({name: 'test', text: msgValue})
+        window.appAPI.sendTextTrunk({name: '', text: msgValue})
         msg.value = ''
         msgValue  = ''
     }
@@ -55,10 +57,7 @@ sendBtn.addEventListener('click', (event) => {
         if(fileValue[0].type == 'application/zip') {
             chatBox.innerHTML = chatBox.innerHTML +
             `<div class="zip-message me">${fileValue[0].name}</div>`;
-            reader.readAsDataURL(fileValue[0])
-            reader.onload = function (e) {
-                window.appAPI.sendZipTrunk({name: 'Test', zip: e.target.result})
-            }
+            ///
         }
         
         // img message
@@ -68,8 +67,7 @@ sendBtn.addEventListener('click', (event) => {
             reader.onload = function (e) {
                 chatBox.innerHTML = chatBox.innerHTML +
                 `<img src="${e.target.result}" class="img-message me"></img>`;
-                window.appAPI.sendImgTrunk({name: 'Test', img: e.target.result})
-                console.log(e.target.result)
+                window.appAPI.sendImgTrunk({name: '', img: e.target.result})
             }
         }
         fileValue = []
@@ -81,21 +79,24 @@ sendBtn.addEventListener('click', (event) => {
 
 /// get text message handler ///
 window.appAPI.getTextTrunk((event, textTrunk) => {
-    chatBox.innerHTML = chatBox.innerHTML + 
-    `<div class="message">
-        <p class="meta">${textTrunk.name}</p>
-        <p class="text">
-            ${textTrunk.text}
-        </p>
-    </div>` ;
-    msgBox.scrollTop = msgBox.scrollHeight
+    if(textTrunk.name == curPeerName) {
+        chatBox.innerHTML = chatBox.innerHTML + 
+        `<div class="message">
+            <p class="meta">${textTrunk.name}</p>
+            <p class="text">
+                ${textTrunk.text}
+            </p>
+        </div>` ;
+        msgBox.scrollTop = msgBox.scrollHeight
+    }
 })
 
 /// get img message handler /// 
 window.appAPI.getImgTrunk((event, imgTrunk) => {
-    chatBox.innerHTML = chatBox.innerHTML +
-    `<img src="${imgTrunk.img}" class="img-message"></img>`;
-    console.log(123)
+    if(imgTrunk.name == curPeerName){
+        chatBox.innerHTML = chatBox.innerHTML +
+        `<img src="${imgTrunk.img}" class="img-message"></img>`;
+    }
 })
 
 /// get zip message handler /// 
@@ -106,7 +107,6 @@ window.appAPI.getZipTrunk((event, zipFile) => {
 /// Handle getting IP address ///
 /// and redirecting peers ///
 
-var curPeerName = ''
 var friendList = document.querySelector('.friend-list')
 var rendererIPs
 

@@ -97,7 +97,6 @@ a {
 }
 
 .focused {
-	background-color: white;
 	color: var(--light-color);
 }
 

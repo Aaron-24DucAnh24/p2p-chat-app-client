@@ -2,7 +2,7 @@
 /// for app creation ///
 const electron = require('electron')
 const {app, BrowserWindow, ipcMain} = electron
-const server = 'https://f00e-14-169-207-49.ap.ngrok.io'
+const server = 'http://127.0.0.1:3000'
 var userName = ''
 var IPs
 
@@ -31,12 +31,14 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', async () => {
+    if(userName) {
+        await fetch(server + '/logout', {
+            method: 'post',
+            body: JSON.stringify({name: userName}),
+            headers: {'Content-Type': 'application/json'}
+        })
+    }
     app.quit()
-    const response = await fetch(server + '/logout', {
-        method: 'post',
-        body: JSON.stringify({name: userName}),
-        headers: {'Content-Type': 'application/json'}
-    })
 })
 
 //////////////////
@@ -100,7 +102,7 @@ function createChatWindow() {
         var response = await fetch(server + '/' + userName);
         IPs      = await response.text()
         if(IPs) chatWindow.webContents.send('getIP', JSON.parse(IPs))
-    }, 10000)
+    }, 5000)
 }
 
 function createRegisterWindow() {
@@ -131,6 +133,7 @@ ipcMain.on('openRegister', () => {
 })
 
 ipcMain.on('getLoginInfo', async (e, loginInfo) => {
+    loginInfo.ip = getLocalAddress()
     const response = await fetch(server + '/login', {
         method: 'post',
         body: JSON.stringify(loginInfo),
@@ -145,6 +148,7 @@ ipcMain.on('getLoginInfo', async (e, loginInfo) => {
 })
 
 ipcMain.on('register', async (e, reqInfo) => {
+    reqInfo.ip = getLocalAddress()
     const response = await fetch(server + '/register', {
         method: 'post',
         body: JSON.stringify(reqInfo),
@@ -175,23 +179,40 @@ ipcMain.on('logout', async (e) => {
 
 /// Send text trunk to other peers ///
 ipcMain.on('sendTextTrunk', (e, textTrunk) => {
+    textTrunk.name = userName
     var socket = io(peerAddress)
     socket.emit('textTrunk', textTrunk)
 })
 
 /// Send img trunk to other peers ///
 ipcMain.on('sendImgTrunk', (e, imgTrunk) => {
+    imgTrunk.name = userName
     var socket = io(peerAddress)
     socket.emit('imgTrunk', imgTrunk)
 })
 
 /// Send zip trunk to other peers ///
 ipcMain.on('sendZipTrunk', (e, zipTrunk) => {
-    var socket = io(peerAddress)
-    socket.emit('zipTrunk', zipTrunk)
+    zipTrunk.name = userName
+    ///
 })
 
 /// Switch peer ///
 ipcMain.on('switchPeer', (e, IP) => {
-    peerAddress = 'http://' + IP + '/10000'
+    peerAddress = 'http://' + IP + ':10000'
 })
+
+var os = require('os')
+function getLocalAddress() {
+    var interfaces = os.networkInterfaces();
+    var addresses = [];
+    for (var k in interfaces) {
+        for (var k2 in interfaces[k]) {
+            var address = interfaces[k][k2];
+            if (address.family === 'IPv4' && !address.internal) {
+                addresses.push(address.address);
+            }
+        }
+    }
+    return addresses[0]
+}

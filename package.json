@@ -11,7 +11,7 @@
   "dependencies": {
     "electron": "^21.3.0",
     "node-fetch": "^3.3.0",
-    "socket.io": "^4.5.3",
+    "socket.io": "^4.5.4",
     "socket.io-client": "^4.5.3"
   }
 }
