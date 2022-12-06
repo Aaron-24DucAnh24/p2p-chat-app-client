@@ -1,12 +1,12 @@
 
-var logoutBtn = document.querySelector('.logout-btn')
-var sendBtn   = document.querySelector('.send-btn')
-var file      = document.querySelector('#file-input')
-var msg       = document.querySelector('.msg')
-var chatBox   = document.querySelector('.chat-messages')
-var msgBox    = document.querySelector('.msg-container')
-var fileBox   = document.querySelector('.file-note')
-var friendList = document.querySelector('.friend-list')
+var logoutBtn   = document.querySelector('.logout-btn')
+var sendBtn     = document.querySelector('.send-btn')
+var file        = document.querySelector('#file-input')
+var msg         = document.querySelector('.msg')
+var chatBox     = document.querySelector('.chat-messages')
+var msgBox      = document.querySelector('.msg-container')
+var fileBox     = document.querySelector('.file-note')
+var friendList  = document.querySelector('.friend-list')
 var curPeerName = ''
 
 // log out

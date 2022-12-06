@@ -52,10 +52,10 @@ function createLoginWindow() {
         width: 1049,
         height: 675,
         webPreferences: {
-            preload: path.join(__dirname, '/public/js/preload.js'),
+            preload: path.join(__dirname, '/js/preload.js'),
         },
     })
-    mainWindow.loadFile(path.join(__dirname, '/view/index.html'))
+    mainWindow.loadFile(path.join(__dirname, '/view/login.html'))
     mainWindow.show()
     clearOtherWindows()
 }
@@ -66,10 +66,10 @@ function createChatWindow() {
         width: 1049,
         height: 675,
         webPreferences: {
-            preload: path.join(__dirname, '/public/js/preload.js'),
+            preload: path.join(__dirname, '/js/preload.js'),
         },
     })
-    chatWindow.loadFile(path.join(__dirname, '/view/app.html'))
+    chatWindow.loadFile(path.join(__dirname, '/view/chat.html'))
     chatWindow.webContents.openDevTools()
     chatWindow.show()
     clearOtherWindows()
@@ -101,7 +101,7 @@ function createChatWindow() {
         if(IPs) chatWindow.webContents.send('getIP', JSON.parse(IPs))
     }
     requestIp()
-    setInterval(requestIp, 5000);
+    setInterval(requestIp, 2000);
 }
 
 function createRegisterWindow() {
@@ -110,7 +110,7 @@ function createRegisterWindow() {
         width: 1049,
         height: 675,
         webPreferences: {
-            preload: path.join(__dirname, '/public/js/preload.js'),
+            preload: path.join(__dirname, '/js/preload.js'),
         },
     })
     registerWindow.loadFile(path.join(__dirname, '/view/register.html'))
