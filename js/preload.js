@@ -14,9 +14,6 @@ contextBridge.exposeInMainWorld('appAPI',
     sendImgTrunk : (imgTrunk)  => ipcRenderer.send('sendImgTrunk', imgTrunk),
     getImgTrunk  : (callback)  => ipcRenderer.on('displayImgMessage', callback),
 
-    sendZipTrunk : (zipTrunk)  => ipcRenderer.send('sendZipTrunk', zipTrunk),
-    getZipTrunk  : (callback)  => ipcRenderer.on('displayZipTrunk', callback),
-
     getIP        : (callback)  => ipcRenderer.on('getIP', callback),
     switchPeer   : (IP)        => ipcRenderer.send('switchPeer', IP)
  })

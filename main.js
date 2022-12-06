@@ -86,11 +86,6 @@ function createChatWindow() {
         socket.on('imgTrunk', (imgTrunk) => {
             chatWindow.webContents.send('displayImgMessage', imgTrunk)
         })
-
-        // Get zip trunk
-        socket.on('zipTrunk', (zipTrunk) => {
-
-        })
     })
 
     
@@ -199,11 +194,6 @@ ipcMain.on('sendImgTrunk', (e, imgTrunk) => {
     imgTrunk.name = userName
     var socket = io(peerAddress)
     socket.emit('imgTrunk', imgTrunk)
-})
-
-ipcMain.on('sendZipTrunk', (e, zipTrunk) => {
-    zipTrunk.name = userName
-    ///
 })
 
 ipcMain.on('switchPeer', (e, IP) => {

@@ -235,8 +235,36 @@ a {
 	opacity: 0.8;
 }
 
-.file-btn {
+.file-btn, .icon-btn {
 	font-size: 25px;
+}
+
+.icon-btn {
+	position: relative;
+}
+
+.icon-btn:hover .emoji-table{
+	display: flex;
+}
+
+.emoji-table {
+	position: absolute;
+	bottom: calc(100% + 20px);
+	right: -35px;
+	background-color: var(--dark-color-b);
+	flex-wrap: wrap;
+	width: 135px;
+	padding: 5px;
+	display: none;
+}
+
+.emoji-table::after {
+	width: 100%;
+	height: 30px;
+	content: "";
+	position: absolute;
+	right: 0;
+	bottom: -24px;
 }
 
 .file-note {
@@ -256,12 +284,12 @@ a {
 }
 
 .img-message {
-	max-width: 60%;
+	max-width: 30%;
 	height: auto;
 	margin-bottom: 15px;
 }
 
-.zip-message {
+.file-message {
 	width: 20%;
 	border: #333 2px solid;
 	padding: 8px;

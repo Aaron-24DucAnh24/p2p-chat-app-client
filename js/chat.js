@@ -7,6 +7,7 @@ var chatBox     = document.querySelector('.chat-messages')
 var msgBox      = document.querySelector('.msg-container')
 var fileBox     = document.querySelector('.file-note')
 var friendList  = document.querySelector('.friend-list')
+var emojis      = document.querySelectorAll('.emoji-item')
 var curPeerName = ''
 
 // log out
@@ -19,6 +20,11 @@ logoutBtn.addEventListener('click', (event) => {
 var msgValue  = ''
 msg.oninput = () => {msgValue = msg.value}
 
+// fill emoji to chat box
+function fillEmoji(code) {
+    msg.value += code
+    msgValue = msg.value
+}
 
 // handle file box
 var fileValue = []
@@ -32,7 +38,7 @@ file.onchange = () => {
 }
 
 // send message handler
-sendBtn.addEventListener('click', (event) => {
+sendBtn.addEventListener('click', async (event) => {
     event.preventDefault()
 
     // text message
@@ -51,28 +57,21 @@ sendBtn.addEventListener('click', (event) => {
 
     if(fileValue.length != 0) {
 
-        // zip message
-        if(fileValue[0].type == 'application/zip') {
-            chatBox.innerHTML = chatBox.innerHTML +
-            `<div class="zip-message me">${fileValue[0].name}</div>`;
-            ///
-        }
-        
         // img message
-        else {
-            var reader = new FileReader()
-            reader.readAsDataURL(fileValue[0])
-            reader.onload = function (e) {
-                chatBox.innerHTML = chatBox.innerHTML +
-                `<img src="${e.target.result}" class="img-message me"></img>`;
-                window.appAPI.sendImgTrunk({name: '', img: e.target.result})
-            }
+        var reader = new FileReader()
+        reader.readAsDataURL(fileValue[0])
+        reader.onload = function (e) {
+            var src = e.target.result
+            chatBox.innerHTML = chatBox.innerHTML + 
+            `<img src="${src}" class="img-message me"></img>`;
+            msgBox.scrollTop = msgBox.scrollHeight
+            window.appAPI.sendImgTrunk({name: '', img: src})
         }
         fileValue = []
         fileBox.innerHTML = 'No selected file'
     }
 
-    msgBox.scrollTop = msgBox.scrollHeight
+    setTimeout(()=>{msgBox.scrollTop=msgBox.scrollHeight},100)
 })
 
 // get text message handler
@@ -95,17 +94,13 @@ window.appAPI.getImgTrunk((event, imgTrunk) => {
         chatBox.innerHTML = chatBox.innerHTML +
         `<img src="${imgTrunk.img}" class="img-message"></img>`;
     }
+    msgBox.scrollTop = msgBox.scrollHeight
 })
 
-// get zip message handler
-window.appAPI.getZipTrunk((event, zipFile) => {
-    ///
-})
+
 
 // Handle getting IP address and switching peers
-
 var peerIPs
-
 window.appAPI.getIP((event, IPs) => {
     var html = ''
     peerIPs = IPs
