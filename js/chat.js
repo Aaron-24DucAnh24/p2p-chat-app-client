@@ -94,7 +94,7 @@ window.appAPI.getImgTrunk((event, imgTrunk) => {
         chatBox.innerHTML = chatBox.innerHTML +
         `<img src="${imgTrunk.img}" class="img-message"></img>`;
     }
-    msgBox.scrollTop = msgBox.scrollHeight
+    setTimeout(() => {msgBox.scrollTop = msgBox.scrollHeight},20);
 })
 
 
