@@ -5,17 +5,16 @@ const {app, BrowserWindow, ipcMain} = require('electron')
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args))
 const interfaces = require('os').networkInterfaces();
 
-
 const server = 'http://127.0.0.1:3000' // Main server address
 var userName = ''                      // Current user name
 var IPs                                // List of ip address from server
 
 // Chat: listen chanel
 const {Server}  = require('socket.io')
-const listener  = new Server(10000)
+const listener  = new Server(10000, {maxHttpBufferSize: 1e8})
 
 // Chat: send chanel
-const {io}      = require('socket.io-client')
+const {io}      = require('socket.io-client');
 var peerAddress = ''
 
 //////////////////
@@ -52,10 +51,10 @@ function createLoginWindow() {
         width: 1049,
         height: 675,
         webPreferences: {
-            preload: path.join(__dirname, '/js/preload.js'),
+            preload: path.join(__dirname, '/preload.js'),
         },
     })
-    mainWindow.loadFile(path.join(__dirname, '/view/login.html'))
+    mainWindow.loadFile(path.join(__dirname, '/public/view/login.html'))
     mainWindow.show()
     clearOtherWindows()
 }
@@ -66,11 +65,10 @@ function createChatWindow() {
         width: 1049,
         height: 675,
         webPreferences: {
-            preload: path.join(__dirname, '/js/preload.js'),
+            preload: path.join(__dirname, '/preload.js'),
         },
     })
-    chatWindow.loadFile(path.join(__dirname, '/view/chat.html'))
-    chatWindow.webContents.openDevTools()
+    chatWindow.loadFile(path.join(__dirname, '/public/view/chat.html'))
     chatWindow.show()
     clearOtherWindows()
 
@@ -86,9 +84,13 @@ function createChatWindow() {
         socket.on('imgTrunk', (imgTrunk) => {
             chatWindow.webContents.send('displayImgMessage', imgTrunk)
         })
+
+        // Get file trunk
+        socket.on('fileTrunk', (fileTrunk) => {
+            chatWindow.webContents.send('displayFileMessage', fileTrunk)
+        })
     })
 
-    
     // request ip address from server
     async function requestIp() {
         var response = await fetch(server + '/' + userName);
@@ -105,10 +107,10 @@ function createRegisterWindow() {
         width: 1049,
         height: 675,
         webPreferences: {
-            preload: path.join(__dirname, '/js/preload.js'),
+            preload: path.join(__dirname, '/preload.js'),
         },
     })
-    registerWindow.loadFile(path.join(__dirname, '/view/register.html'))
+    registerWindow.loadFile(path.join(__dirname, '/public/view/register.html'))
     registerWindow.show()
     clearOtherWindows()
 }
@@ -194,6 +196,12 @@ ipcMain.on('sendImgTrunk', (e, imgTrunk) => {
     imgTrunk.name = userName
     var socket = io(peerAddress)
     socket.emit('imgTrunk', imgTrunk)
+})
+
+ipcMain.on('sendFileTrunk', (e, fileTrunk) => {
+    fileTrunk.name = userName
+    var socket = io(peerAddress)
+    socket.emit('fileTrunk', fileTrunk)
 })
 
 ipcMain.on('switchPeer', (e, IP) => {
