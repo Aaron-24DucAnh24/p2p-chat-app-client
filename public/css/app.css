@@ -331,6 +331,40 @@ a {
 	color: black;
 }
 
+.online {
+	position: relative;
+}
+
+.online::after {
+	content: "";
+	background-color: greenyellow;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	position: absolute;
+	right: -10px;
+	top: calc(50% - 4px);
+}
+
+.unread {
+	position: relative;
+}
+
+.unread::before {
+	content: "!";
+	color: #fff;
+	background-color: red;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	position: absolute;
+	right: -32px;
+	top: calc(50% - 8px);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 @media (max-width: 700px) {
 	.chat-main {
 		display: block;
