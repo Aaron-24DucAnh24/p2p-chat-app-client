@@ -23,23 +23,9 @@ var peerAddress = ''
 
 app.whenReady().then(() => {
     createLoginWindow()
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) 
-            createLoginWindow()
-    })
 })
 
-app.on('window-all-closed', async () => {
-    // logout before closing app
-    if(userName) {
-        await fetch(server + '/logout', {
-            method: 'post',
-            body: JSON.stringify({name: userName}),
-            headers: {'Content-Type': 'application/json'}
-        })
-    }
-    app.quit()
-})
+app.on('window-all-closed', closeApp)
 
 //////////////////
 /// functions  ///
@@ -55,8 +41,9 @@ function createLoginWindow() {
         },
     })
     mainWindow.loadFile(path.join(__dirname, '/public/view/login.html'))
-    mainWindow.show()
     clearOtherWindows()
+    mainWindow.show()
+    mainWindow.on('closed', closeApp)
 }
 
 function createChatWindow() {
@@ -69,8 +56,9 @@ function createChatWindow() {
         },
     })
     chatWindow.loadFile(path.join(__dirname, '/public/view/chat.html'))
-    chatWindow.show()
     clearOtherWindows()
+    chatWindow.show()
+    chatWindow.on('closed', closeApp)
 
     // Listen to other peers
     listener.on('connection', (socket) => {
@@ -111,13 +99,14 @@ function createRegisterWindow() {
         },
     })
     registerWindow.loadFile(path.join(__dirname, '/public/view/register.html'))
-    registerWindow.show()
     clearOtherWindows()
+    registerWindow.show()
+    registerWindow.on('closed', closeApp)
 }
 
 function clearOtherWindows() {
-    var length = BrowserWindow.getAllWindows().length
-    if(length > 1) BrowserWindow.getAllWindows()[1].destroy()
+    for(var window of BrowserWindow.getAllWindows())
+        window.hide()
 }
 
 function getLocalAddress() {
@@ -131,6 +120,18 @@ function getLocalAddress() {
         }
     }
     return addresses[0]
+}
+
+async function closeApp() {
+    // logout before closing app
+    if(userName) {
+        await fetch(server + '/logout', {
+            method: 'post',
+            body: JSON.stringify({name: userName}),
+            headers: {'Content-Type': 'application/json'}
+        })
+    }
+    app.quit()
 }
 
 ///////////////////////////
@@ -183,7 +184,6 @@ ipcMain.on('logout', async (e) => {
         createLoginWindow()
         userName = ''
     } 
-    else BrowserWindow.getFocusedWindow().reload()
 })
 
 ipcMain.on('sendTextTrunk', (e, textTrunk) => {
