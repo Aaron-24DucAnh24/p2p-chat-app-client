@@ -5,7 +5,7 @@ const {app, BrowserWindow, ipcMain} = require('electron')
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args))
 const interfaces = require('os').networkInterfaces();
 
-const server = 'http://127.0.0.1:3000' // Main server address
+const server = 'https://c0c9-113-176-62-181.ap.ngrok.io'
 var userName = ''                      // Current user name
 var IPs                                // List of ip address from server
 
